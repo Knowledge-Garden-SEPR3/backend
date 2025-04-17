@@ -10,11 +10,19 @@ const AWS = require('aws-sdk');
 const config = require('../../../config');
 const mongoose = require('mongoose');
 
-// Configure AWS
-const s3 = new AWS.S3({
+// Configure AWS for local S3-compatible service (MinIO)
+AWS.config.update({
   accessKeyId: config.aws.accessKeyId,
   secretAccessKey: config.aws.secretAccessKey,
   region: config.aws.region
+});
+
+const s3 = new AWS.S3({
+  endpoint: new AWS.Endpoint('10.1.37.28:9000'),
+  s3ForcePathStyle: true,
+  signatureVersion: 'v4',
+  sslEnabled: false,
+  logger: console
 });
 
 /**
@@ -131,6 +139,14 @@ const getResources = async (req, res, next) => {
 const getResource = async (req, res, next) => {
   try {
     const resourceId = req.params.id;
+    
+    // Validate if resourceId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(resourceId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid resource ID format'
+      });
+    }
 
     // Try to get from cache first
     const cacheKey = `resource:${resourceId}`;
@@ -339,6 +355,14 @@ const deleteResource = async (req, res, next) => {
 const uploadResource = async (req, res, next) => {
   try {
     const resourceId = req.params.id;
+    
+    // Validate if resourceId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(resourceId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid resource ID format'
+      });
+    }
 
     // Check if resource exists
     let resource = await Resource.findById(resourceId);
@@ -380,7 +404,18 @@ const uploadResource = async (req, res, next) => {
     };
 
     // Upload to S3
-    const uploadResult = await s3.upload(params).promise();
+    let uploadResult;
+    try {
+      uploadResult = await s3.upload(params).promise();
+      console.log('S3 upload successful:', uploadResult);
+    } catch (s3Error) {
+      console.error('S3 upload error:', s3Error);
+      return res.status(500).json({
+        success: false,
+        error: 'File upload failed',
+        message: s3Error.message || 'Could not upload file to storage service'
+      });
+    }
 
     // Create new version object
     const versionData = {
