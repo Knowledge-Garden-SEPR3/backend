@@ -1,0 +1,41 @@
+{
+  "name": "knowledge-garden-backend",
+  "version": "1.0.0",
+  "description": "Backend services for Knowledge Garden platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mongoose": "^7.4.0",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.1",
+    "bcryptjs": "^2.4.3",
+    "redis": "^4.6.7",
+    "multer": "^1.4.5-lts.1",
+    "aws-sdk": "^2.1410.0",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.8.0",
+    "joi": "^17.9.2",
+    "winston": "^3.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "@elastic/elasticsearch": "^8.12.1",
+    "moment": "^2.30.1"
+  },
+  "devDependencies": {
+    "jest": "^29.6.1",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": ["knowledge-garden", "academic-resources", "microservices"],
+  "author": "Knowledge Garden Team",
+  "license": "MIT"
+}
